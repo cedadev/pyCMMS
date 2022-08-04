@@ -240,12 +240,8 @@ class CMMSParser(object):
             
             size_details = re.search("(?P<size_val>[\d\.]+)(\s*)(?P<size_unit>[a-zA-Z]{0,})",self.yaml_content['size'])
             
-            #size_details = self.yaml_content['size'].split(' ')
-            #amount = size_details[0].strip()
-            #unit = size_details[1].strip().lower()
-            
-            amount=float(size_details['size_val'])
-            unit=size_details['size_unit']
+            amount = float(size_details['size_val'])
+            unit = size_details['size_unit'].lower()
         else:
             amount = self.yaml_content['size']
             unit = 'b'
