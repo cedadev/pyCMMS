@@ -226,6 +226,7 @@ class CMMSParser(object):
 
     def _check_and_parse_size(self):
 
+        #sorting size with unitsß
         size_mappings = {'b' : 0,
                          'kb' : 1,
                          'mb' : 2,
