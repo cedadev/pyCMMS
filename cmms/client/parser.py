@@ -49,16 +49,16 @@ class CMMSParser(object):
     '''
 
 
-    def __init__(self, uuid, test=False):
+    def __init__(self, uuid, test=False, branch="master"):
 
-
+        base_url = 'https://raw.githubusercontent.com/cedadev/cmms/' + branch
         self.uuid = uuid
-        self.cmms_url = 'https://raw.githubusercontent.com/cedadev/cmms/master/yaml_files/%s.yml'
+        self.cmms_url = base_url + '/yaml_files/%s.yml'
 
         if test and self.uuid[0:4] in ['geo_','bad_']:
-            self.cmms_url = 'https://raw.githubusercontent.com/cedadev/cmms/master/test_yaml/%s.yml'
+            self.cmms_url = base_url + '/test_yaml/%s.yml'
         if 'full_example' in uuid:
-            self.cmms_url = 'https://raw.githubusercontent.com/cedadev/cmms/master/example_yaml/%s.yml'
+            self.cmms_url = base_url + '/example_yaml/%s.yml'
         self.field_mappings = {'splice rules': 'splice rules',
                                'phenomena': 'phenomena',
                                'time_range': 'temporalRange',
