@@ -147,10 +147,7 @@ class CMMSParser(object):
         splice_errors = []
         splice_rules = {}
         for splice_item_name, splice_rule in self.yaml_content['splice rules'].items():
-            # TODO fix bug
-            # values in self.field_mappings.keys() have non-lower characters, meaning this will ALWAYS fail for some checks.
-            # notably 'accessType' 'accessRoles' 'licenceUrl' 'lastUpdate'
-            if splice_item_name.lower() not in list(self.field_mappings.keys()) + ['default']:
+            if splice_item_name not in list(self.field_mappings.keys()) + ['default']:
                 splice_errors.append(f'"{splice_item_name}" is not a recognised CMMS field name')
                 continue
 
