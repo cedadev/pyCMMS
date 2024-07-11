@@ -224,26 +224,23 @@ class CMMSParser(object):
             self.errors["time_range"] = "%s" % e
 
     def _check_and_parse_bbox(self):
-        if not (
-            self.yaml_content["bbox"]["east"] <= 180 and self.yaml_content["bbox"]["west"] >= -180
-        ):
-            self.errors["bbox"] = "longitude not on -180 to + 180 grid"
-            return
-
-        if (
-            self.yaml_content["bbox"]["east"] >= self.yaml_content["bbox"]["west"]
-            and self.yaml_content["bbox"]["north"] >= self.yaml_content["bbox"]["south"]
-        ):
-            self.content[self.field_mappings["bbox"]] = {
-                "northBoundLatitude": self.yaml_content["bbox"]["north"],
-                "eastBoundLongitude": self.yaml_content["bbox"]["east"],
-                "westBoundLongitude": self.yaml_content["bbox"]["west"],
-                "southBoundLatitude": self.yaml_content["bbox"]["south"],
-            }
+        if self.yaml_content["bbox"]["east"] <= 180 and self.yaml_content["bbox"]["west"] >= -180:
+            if (
+                self.yaml_content["bbox"]["east"] >= self.yaml_content["bbox"]["west"]
+                and self.yaml_content["bbox"]["north"] >= self.yaml_content["bbox"]["south"]
+            ):
+                self.content[self.field_mappings["bbox"]] = {
+                    "northBoundLatitude": self.yaml_content["bbox"]["north"],
+                    "eastBoundLongitude": self.yaml_content["bbox"]["east"],
+                    "westBoundLongitude": self.yaml_content["bbox"]["west"],
+                    "southBoundLatitude": self.yaml_content["bbox"]["south"],
+                }
+            else:
+                self.errors["bbox"] = (
+                    "north and east values must be same or greater than south and west values"
+                )
         else:
-            self.errors["bbox"] = (
-                "north and east values must be same or greater than south and west values"
-            )
+            self.errors["bbox"] = "longitude not on -180 to + 180 grid"
 
     def _isFloat(self, value):
         try:
