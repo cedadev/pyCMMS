@@ -49,16 +49,16 @@ class CMMSParser(object):
     '''
 
 
-    def __init__(self, uuid, test=False):
+    def __init__(self, uuid, test=False, branch="master"):
 
-
+        base_url = 'https://raw.githubusercontent.com/cedadev/cmms/' + branch
         self.uuid = uuid
-        self.cmms_url = 'https://raw.githubusercontent.com/cedadev/cmms/master/yaml_files/%s.yml'
+        self.cmms_url = base_url + '/yaml_files/%s.yml'
 
         if test and self.uuid[0:4] in ['geo_','bad_']:
-            self.cmms_url = 'https://raw.githubusercontent.com/cedadev/cmms/master/test_yaml/%s.yml'
+            self.cmms_url = base_url + '/test_yaml/%s.yml'
         if 'full_example' in uuid:
-            self.cmms_url = 'https://raw.githubusercontent.com/cedadev/cmms/master/example_yaml/%s.yml'
+            self.cmms_url = base_url + '/example_yaml/%s.yml'
         self.field_mappings = {'splice rules': 'splice rules',
                                'phenomena': 'phenomena',
                                'time_range': 'temporalRange',
@@ -136,35 +136,37 @@ class CMMSParser(object):
 
         :return:
         '''
-        splice_options = ['default',
-                          'cmms_only',
-                          'replace',
-                          'append',
-                          'replace_append',
-                          'append_new_only']
-        splice_error_msg = ''
+        splice_options = [
+            'default',
+            'cmms_only',
+            'replace',
+            'append',
+            'replace_append',
+            'append_new_only'
+            ]
+        splice_errors = []
+        splice_rules = {}
         for splice_item_name, splice_rule in self.yaml_content['splice rules'].items():
-            if splice_item_name.lower() in list(self.field_mappings.keys()) + ['default']:
-                if splice_item_name in self.yaml_content:
-                    if splice_rule in splice_options:
-                        if self.field_mappings['splice rules'] in self.content:
-                            self.content[self.field_mappings['splice rules']][splice_item_name] = splice_rule
-                        else:
-                            self.content[self.field_mappings['splice rules']] = {splice_item_name : splice_rule}
-                    else:
-                        splice_error_msg = '"%s" is not a permitted splice rule option'% splice_rule
+            if splice_item_name not in list(self.field_mappings.keys()) + ['default']:
+                splice_errors.append(f'"{splice_item_name}" is not a recognised CMMS field name')
+                continue
 
-                else:
-                    splice_error_msg = '"%s" splice rule exists, but no content in yaml file, so not made available'% splice_item_name
+            if splice_item_name not in self.yaml_content:
+                splice_errors.append(f'"{splice_item_name}" splice rule exists, but no content in yaml file, so not made available')
+                continue
 
-            else:
-                splice_error_msg = '"%s" is not a recognised CMMS field name'% splice_item_name
+            if splice_rule not in splice_options:
+                splice_errors.append(f'"{splice_rule}" is not a permitted splice rule option')
+                continue
+            
+            splice_rules[splice_item_name] = splice_rule
 
-            if splice_error_msg:
-                if ('splice_rules') in self.errors:
-                    self.errors['splice_rules'].append(splice_error_msg)
-                else:
-                    self.errors['splice_rules'] = [splice_error_msg]
+        if splice_errors:
+            self.errors['splice_rules'] = tuple(splice_errors)
+            print("pyCMMS parser.py splice_rules errors:", self.errors['splice_rules'])
+        
+        if splice_rules:
+            self.content[self.field_mappings['splice rules']] = splice_rules
 
 
     def _check_and_parse_phenomena(self):

@@ -7,8 +7,7 @@ from github import Github
 
 def review_cmms_content():
 
-    gh = Github()
-    repo = gh.get_repo("cedadev/cmms")
+    repo = Github().get_repo("cedadev/cmms")
 
     contents = repo.get_contents("yaml_files")
 
@@ -56,5 +55,5 @@ if __name__ == '__main__':
 
     log.info('test')
     result = review_cmms_content()
-    print result
+    print(result)
 
