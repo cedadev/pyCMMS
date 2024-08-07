@@ -77,6 +77,9 @@ class CMMSParser(object):
         self.errors = {}
         self._check_and_get_yaml()
         self._parse_yaml_content()
+    
+    def is_service_reachable(self):
+        return not self.errors["service_unreachable"]
 
     def _check_and_get_yaml(self):
         """
@@ -109,10 +112,12 @@ class CMMSParser(object):
                 self.errors["cmms_check"] = "no CMMS entry for %s" % self.uuid
             else:
                 self.errors["cmms_check"] = "CMMS retrieval error: %s" % ret.status_code
+                self.errors["service_unreachable"] = True
         except requests.ConnectionError:
             self.errors["cmms_check"] = (
                 "CMMS service unreachable when attempting to get %s.yml entry" % self.uuid
             )
+            self.errors["service_unreachable"] = True
 
     def _parse_yaml_content(self):
         """
