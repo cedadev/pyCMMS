@@ -79,7 +79,7 @@ class CMMSParser(object):
         self._parse_yaml_content()
     
     def is_service_reachable(self):
-        return not self.errors["service_unreachable"]
+        return not ("service_unreachable" in self.errors and self.errors["service_unreachable"])
 
     def _check_and_get_yaml(self):
         """
