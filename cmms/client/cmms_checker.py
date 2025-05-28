@@ -9,6 +9,7 @@ def review_cmms_content():
 
     repo = Github().get_repo("cedadev/cmms")
 
+    import pdb;pdb.set_trace()
     contents = repo.get_contents("yaml_files")
 
     start_scan_time = datetime.datetime.now()
@@ -25,9 +26,9 @@ def review_cmms_content():
     # how many passed ok,
     # how many with errors)
 
-    for content in contents:
+    for number, content in enumerate(contents):
         uuid = content.path.split('/')[1][:-4]
-
+        print("Checking %s (%d/%d)" % (uuid, number + 1, len(contents)))
         try:
             cmms_entry = CMMSParser(uuid)
 
@@ -54,6 +55,7 @@ if __name__ == '__main__':
     log = logging.getLogger()
 
     log.info('test')
-    result = review_cmms_content()
-    print(result)
+    results = review_cmms_content()
+    for result in results:
+        print(result)
 
