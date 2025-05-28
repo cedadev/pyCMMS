@@ -83,7 +83,7 @@ class CMMSParser(object):
 
     def _check_and_get_yaml(self):
         """
-        attemots
+        attempts
         :param self:
         :return: self.errors with error information as required OR self.content with read in yaml_content
         """
@@ -127,7 +127,11 @@ class CMMSParser(object):
         :param self:
         :return: self.content
         """
-
+        if "splice rules" not in self.yaml_content:
+            self.errors["splice_rules"] = (
+                    'no splice rules defined'
+                )
+                    
         for yaml_field in self.yaml_content:
             if yaml_field in self.field_mappings:
                 yaml_check = "_check_and_parse_" + yaml_field.replace(" ", "_")
@@ -156,6 +160,12 @@ class CMMSParser(object):
         ]
         splice_errors = []
         splice_rules = {}
+        print(self.yaml_content)
+            
+
+        if not isinstance(self.yaml_content["splice rules"], dict):
+            self.errors["splice_rules"] = str(e)
+        
         for splice_item_name, splice_rule in self.yaml_content["splice rules"].items():
             if splice_item_name not in list(self.field_mappings.keys()) + ["default"]:
                 splice_errors.append(f'"{splice_item_name}" is not a recognised CMMS field name')
@@ -257,14 +267,16 @@ class CMMSParser(object):
     def _check_and_parse_size(self):
         # sorting size with units
         size_mappings = {"b": 0, "kb": 1, "mb": 2, "gb": 3, "tb": 4, "pb": 5}
+        size_mappings.update({'kib': 1, 'mib': 2, 'gib': 3, 'tib': 4, 'pib': 5})
+
 
         if isinstance(self.yaml_content["size"], str):
             size_details = re.search(
-                "(?P<size_val>[\d\.]+)(\s*)(?P<size_unit>[a-zA-Z]{0,})",
+                "(?P<size_val>[\de\.]+)(\s*)(?P<size_unit>[a-zA-Z]{0,})",
                 self.yaml_content["size"],
             )
-
-            amount = float(size_details["size_val"])
+            
+            amount = size_details["size_val"]
             unit = size_details["size_unit"].lower()
         else:
             amount = self.yaml_content["size"]
@@ -272,9 +284,10 @@ class CMMSParser(object):
 
         if self._isFloat(amount):
             if unit in size_mappings:
-                self.content[self.field_mappings["size"]] = (
-                    float(amount) * 1024 ** size_mappings[unit]
-                )
+                scaler = 1000
+                if 'i' in unit:
+                    scaler = 1024  # use 1024 for binary units (kib, mib, etc.)
+                self.content[self.field_mappings["size"]] = (float(amount) * scaler ** size_mappings[unit])      
             else:
                 self.errors["size"] = '"%s" not a valid unit' % unit
 

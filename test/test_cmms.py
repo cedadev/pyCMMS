@@ -9,6 +9,13 @@ def check_err(test_string, err_entry ):
             return True
     raise Exception('{} not in {}'.format(test_string, err_entry))
 
+def test_BadSplice_noSpliceRules_sucess():
+    'no splice rules in the YAML file'
+    uuid = 'bad_missing_splice_rules_section'
+    parsed_item = CMMSParser(uuid, test=True)
+    check_err('no splice rules defined', parsed_item.errors['splice_rules'])
+
+
 def test_BadSplice_keyIsNotRecognisedCMMSfield_sucess():
     ''
     uuid = 'bad_splice'
